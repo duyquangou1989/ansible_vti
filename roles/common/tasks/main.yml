@@ -1,10 +1,52 @@
 ---
+- name: show ansible facts
+  debug: var=ansible_facts
+  #debug: var={{ ansible_default_ipv4.address }}
+
+- name: List dir
+  shell: ls /tmp
+  register: listtest
+  tags:
+    - listdir
+
+- name: show list
+  debug: var=listtest
+  tags:
+    - listdir
+
+- name: list file
+  debug:
+    msg:
+      - "{{ item }}"
+  loop: "{{listtest.stdout_lines}}"
+  tags:
+    - listdir
+  
+- name: Delete File
+  file: path=/tmp/{{item}} state=absent
+  when: ("{{item}}" == "yum_save_tx.2020-11-05.05-34.fzXCm6.yumtx")
+  loop: "{{listtest.stdout_lines}}"
+  tags:
+    - listdir
+
+- name: Loop Dict
+  debug:
+    msg:
+     - "Loop dict KEY: {{ item.key }}, VALUE: {{ item.value }} "
+  with_dict: "{{ansible_cmdline}}"
+
+- name: Loop List
+  debug:
+    msg:
+      - "Loop list {{ item }}"
+  loop: "{{ansible_system_capabilities}}"
+
 - name: Install libselinux-python
   yum: name=libselinux-python state=present
 
 - name: Install iptables
   yum: name=iptables-services state=present
-  
+
 - name: Reload ansible_facts
   setup:
 
