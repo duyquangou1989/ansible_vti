@@ -1,0 +1,6 @@
+---
+mysql_port: 3306
+
+auto_up_disable: false
+
+server_hostname: duyquangou1989.com

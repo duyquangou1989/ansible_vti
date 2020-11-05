@@ -1,0 +1,13 @@
+---
+- name: Install libselinux-python
+  yum: name=libselinux-python state=present
+
+- name: Install iptables
+  yum: name=iptables-services state=present
+  
+- name: Reload ansible_facts
+  setup:
+
+- name: Setup iptables rules
+  copy: src=iptables-save dest=/etc/sysconfig/iptables
+  notify: restart iptables

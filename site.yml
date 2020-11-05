@@ -1,0 +1,11 @@
+---
+- name: Install MySQL, Nginx and PHP-FPM
+  hosts: all
+  remote_user: quang.tong
+  become: True
+
+  roles:
+    - common
+    - mysql
+    #- nginx 
+    #- php-fpm
