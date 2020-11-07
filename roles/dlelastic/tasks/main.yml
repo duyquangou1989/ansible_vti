@@ -1,0 +1,81 @@
+-
+- name: Prepare Install
+  shell: rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+  when: ansible_os_family == "RedHat"
+
+- name: Create Repo
+  template: src=elasticsearch.repo.j2 dest=/etc/yum.repos.d/elasticsearch.repo
+  notify: Clean Yum
+
+- name: Check exist elastic
+  shell: rpm -qa | grep elasticsearch | wc -l
+  register: elasexist
+  
+- name: Remove Exist elas
+  yum: 
+    name: elasticsearch
+    state: absent
+  when: elasexist.stdout != 0
+
+- name: Install Elastic
+  yum:
+    name: elasticsearch
+    state: present
+    update_cache: True
+    enablerepo: elasticsearch
+  #notify: Restart Elasticsearch
+
+- name: Create Certs Dir
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ elastuser }}"
+    force: yes
+  with_items:
+    - /etc/elasticsearch/certs
+    - /data
+
+- name: Copy Certs
+  copy: src=roles/dlapp/templates/{{ item }} dest=/etc/elasticsearch/certs/{{ item }}
+  with_items:
+    - ssl-dssvti.com-key
+    - ssl-dssvti.com.pem
+
+- name: Copy Config
+  template: 
+    src: elasticsearch.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml
+  notify: Restart Elasticsearch
+
+- name: Flush handlers
+  meta: flush_handlers
+
+- name: Create tmp superuser
+  shell: ./elasticsearch-users useradd {{ tmpsuperuser }}  -r superuser -p '{{ tmpsuperpass }}'
+  args:
+    chdir: /usr/share/elasticsearch/bin
+
+- name: Reset Elastic Pass
+  uri:
+    url: "{{ elasticurl }}/_xpack/security/user/{{ elasticuser }}/_password?pretty"
+    method: PUT
+    body:
+      password: "{{ elasticpass }}"
+    user: "{{ tmpsuperuser }}"
+    password: "{{ tmpsuperpass }}"
+    body_format: json
+    force_basic_auth: yes
+    validate_certs: no
+    headers:
+      Content-Type: application/json
+  tags:
+    - test
+  ignore_errors: true
+# - name: Debug
+#   debug: var=ansible_facts['eth0'].ipv4.address
+
+# curl -s --user quangtd:123456 -XPUT "https://test.dssvti.com:9200/_xpack/security/user/elastic/_password?pretty" -H 'Content-Type: application/json' -d'
+# {
+#   "password" : "123456"
+# }
+# '

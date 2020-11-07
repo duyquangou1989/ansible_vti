@@ -18,8 +18,9 @@ resource "google_compute_address" "extaddr" {
 
 resource "google_compute_instance" "instancedemo" {
     name = "insdemo"
-    machine_type = "f1-micro"
+    machine_type = "custom-2-8192"
     zone = "asia-southeast1-b"
+    allow_stopping_for_update = true
 
     metadata = {
         ssh-keys = "quang.tong:${file("~/.ssh/id_ed25519.pub")}"

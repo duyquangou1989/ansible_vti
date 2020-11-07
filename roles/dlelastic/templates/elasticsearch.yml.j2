@@ -1,0 +1,36 @@
+
+#cluster.name: my-application
+
+
+#node.name: node-1
+
+#node.attr.rack: r1
+
+path.data: /data/elasticsearch/data
+
+path.logs: /data/elasticsearch/logs
+
+network.host: "{{ ansible_facts['eth0'].ipv4.address }}"
+
+#http.port: 443
+#http.port: 9200
+
+#discovery.seed_hosts: ["host1", "host2"]
+#discovery.seed_hosts: ["127.0.0.1", "{{ ansible_facts['eth0'].ipv4.address }}"]
+discovery.type: single-node
+
+#cluster.initial_master_nodes: ["node-1", "node-2"]
+
+#gateway.recover_after_nodes: 3
+
+#action.destructive_requires_name: true
+
+xpack.security.enabled: true
+xpack.security.http.ssl.enabled: true
+xpack.security.transport.ssl.enabled: true
+xpack.security.http.ssl.key: /etc/elasticsearch/certs/ssl-dssvti.com-key
+xpack.security.http.ssl.certificate: /etc/elasticsearch/certs/ssl-dssvti.com.pem
+xpack.security.http.ssl.certificate_authorities: /etc/elasticsearch/certs/ssl-dssvti.com.pem
+xpack.security.transport.ssl.key: /etc/elasticsearch/certs/ssl-dssvti.com-key
+xpack.security.transport.ssl.certificate: /etc/elasticsearch/certs/ssl-dssvti.com.pem
+xpack.security.transport.ssl.certificate_authorities: /etc/elasticsearch/certs/ssl-dssvti.com.pem
