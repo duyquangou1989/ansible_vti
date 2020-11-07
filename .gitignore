@@ -1,2 +1,4 @@
 .terraform/
 terraform.*
+ssl-dssvti.com-key
+ssl-dssvti.com.pem

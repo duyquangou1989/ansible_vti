@@ -1,0 +1,127 @@
+user  nginx;
+worker_processes  {{ worker_process }};
+
+#pid        logs/nginx.pid;
+pid /run/nginx.pid;
+
+events {
+        worker_connections  8192;
+        multi_accept on;
+        accept_mutex off;
+        use epoll;
+}
+
+
+http {
+        include       mime.types;
+        default_type  application/octet-stream;
+
+        log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                          '$status $body_bytes_sent "$http_referer" '
+                          '"$http_user_agent" "$http_x_forwarded_for"';
+
+        ## Don't log access
+        access_log off;
+
+        ##aio threads;
+
+        ## Size Limits
+        client_body_buffer_size     128K;
+        client_header_buffer_size   128K;
+        client_max_body_size        200M;
+        large_client_header_buffers 2 1k;
+
+        ## Timeouts
+        client_body_timeout   3600;
+        client_header_timeout 3600;
+        #expires               24h;
+        keepalive_timeout     3600 3600;
+        send_timeout          3600;
+
+	## General Options
+        #ignore_invalid_headers   on;
+        keepalive_requests      100000;
+        reset_timedout_connection on;
+        recursive_error_pages    on;
+        sendfile                 on;
+        sendfile_max_chunk      512k;
+        server_name_in_redirect off;
+        server_tokens           off;
+
+        ## TCP options
+        tcp_nopush on;
+        tcp_nodelay on;
+
+        ## Cache options
+        open_file_cache max=10000 inactive=20s;
+        open_file_cache_valid    60s;
+        open_file_cache_min_uses 2;
+        open_file_cache_errors   on;
+
+        # Limits Connections Per IP At The Firewall Level to avoid HTTP flood based attacks
+        # limit_req_zone $binary_remote_addr zone=slimitss:10m rate=5r/s;
+        # limit_req zone=slimitss burst=100;
+
+	gzip  on;
+        gzip_static on;
+        # gzip_disable "msie6";
+        gzip_disable "MSIE [1-6]\.(?!.*SV1)";
+        gzip_vary on;
+        gzip_proxied any;
+        gzip_comp_level 6;
+        gzip_min_length 1100;
+        gzip_buffers 32 32k;
+        gzip_http_version 1.1;
+        gzip_types text/plain text/css application/json application/x-javascript application/javascript text/xml application/xml;
+        gzip_types application/xml+rss text/javascript image/svg+xml application/vnd.ms-fontobject application/x-font-ttf font/opentype;
+        gzip_types application/ecmascript application/postscript application/pdf;
+
+        map $sent_http_content_type $cacheable_types {
+                "text/css" "max-age=864000";
+                "image/jpeg" "max-age=864000";
+                "image/png" "max-age=864000";
+                default "";
+        }
+
+        fastcgi_cache_path /var/lib/nginx/fastcgi_cache levels=1:2 keys_zone=ERPOnline:100m inactive=60m;
+        fastcgi_cache_key "$scheme$request_method$host$request_uri";
+
+        ## Proxy options
+        proxy_buffering                 on;
+        proxy_cache_min_uses            3;
+        proxy_cache_path                /var/lib/nginx/cache/ levels=1:2 keys_zone=cache:60m inactive=90m max_size=1000m;
+        proxy_temp_path                 /var/lib/nginx/proxy;
+
+        # Cache different return codes for different lengths of time
+        # We cached normal pages for 10 minutes
+        proxy_cache cache;
+
+        add_header X-Cache-Status $upstream_cache_status;
+        proxy_cache_valid               200 302 10m;
+        #add_header Cache-Control no-cache;
+        proxy_cache_valid               404 1m;
+        proxy_ignore_client_abort       off;
+        proxy_intercept_errors          on;
+        proxy_next_upstream             error timeout invalid_header;
+        proxy_redirect                  off;
+        proxy_set_header                X-Forwarded-For $remote_addr;
+        proxy_connect_timeout           600;
+        proxy_send_timeout              600;
+        proxy_read_timeout              600;
+        proxy_cache_revalidate          on;
+        proxy_buffers                   8 16k;
+        proxy_buffer_size               32k;
+        proxy_cache_key  "$scheme://$host$request_uri";
+        proxy_redirect off;
+
+        server{
+                # this server block is to prevent unknown domain to show an unexpected site
+                server_name 34.87.58.181;
+                return 302 http://pre-dl.dssvti.com;
+                location / {
+                        deny 34.87.58.181;
+                }
+        }
+        include /etc/nginx/conf.d/*.conf;
+        include /etc/nginx/site-enable/*;
+}

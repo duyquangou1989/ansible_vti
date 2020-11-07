@@ -1,0 +1,51 @@
+---
+- name: Check exist Postgres
+  shell: rpm -qa | grep 'pgdg\|postgresql10-server' | wc -l
+  register: postgresck
+
+- name: Remove Exist Pkg
+  yum: name={{ item }} state=absent update_cache=True
+  loop: ['https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm','postgresql10-server']
+  when: postgresck.stdout != 0
+
+- name: Install Postgres 10
+  yum: name={{ item }} state=present update_cache=True
+  loop: ['https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm','postgresql10-server']
+  tags:
+    - postgres
+
+- name: Remove DataDir
+  file: path=/var/lib/pgsql/10/data state=absent
+
+- name: Initialize DB
+  shell: /usr/pgsql-10/bin/postgresql-10-setup initdb
+  
+- name: Config Postgres
+  template: src={{ item }}.j2 dest=/var/lib/pgsql/10/data/{{ item }}
+  loop: ['pg_hba.conf','postgresql.conf']
+
+- name: Force restat postgres
+  service: name="postgresql-10" state=restarted
+
+- name: Check postgres user exist
+  shell: sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='{{ postgresuser }}'"
+  register: dbucheck
+
+- name: Remove exist user
+  shell: sudo -u postgres psql -c "DROP USER {{ postgresuser }}"
+  when: dbucheck.stdout == 1
+
+- name: Create User 
+  shell: "{{ item }}"
+  with_items:
+    - sudo -u postgres psql -c "CREATE USER {{ postgresuser }} WITH ENCRYPTED PASSWORD '{{ postgrespassword }}'"
+  args:
+    chdir: /var/lib/pgsql
+
+- name: Create Database
+  shell: sudo -u postgres psql -c "DROP DATABASE {{ postgresdb }}" ; sudo -u postgres psql -c "CREATE DATABASE {{ postgresdb }}"
+  args:
+    chdir: /var/lib/pgsql
+
+- name: Grant Permission
+  shell: sudo -u postgres psql -c "ALTER DATABASE {{ postgresdb }} OWNER TO {{ postgresuser }}"

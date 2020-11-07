@@ -1,55 +1,125 @@
 ---
 - name: show ansible facts
   debug: var=ansible_facts
-  #debug: var={{ ansible_default_ipv4.address }}
-
-- name: List dir
-  shell: ls /tmp
-  register: listtest
   tags:
-    - listdir
+    - test
 
-- name: show list
-  debug: var=listtest
-  tags:
-    - listdir
+# - name: List dir
+#   shell: ls /tmp
+#   register: listtest
+#   tags:
+#     - listdir
 
-- name: list file
-  debug:
-    msg:
-      - "{{ item }}"
-  loop: "{{listtest.stdout_lines}}"
-  tags:
-    - listdir
+# - name: show list
+#   debug: var=listtest
+#   tags:
+#     - listdir
+
+# - name: list file
+#   debug:
+#     msg:
+#       - "{{ item }}"
+#   loop: "{{listtest.stdout_lines}}"
+#   tags:
+#     - listdir
   
-- name: Delete File
-  file: path=/tmp/{{item}} state=absent
-  when: ("{{item}}" == "yum_save_tx.2020-11-05.05-34.fzXCm6.yumtx")
-  loop: "{{listtest.stdout_lines}}"
-  tags:
-    - listdir
+#- name: Delete File
+#  file: path=/tmp/{{item}} state=absent
+#  when: ("{{item}}" == "yum_save_tx.2020-11-05.05-34.fzXCm6.yumtx")
+#  loop: "{{listtest.stdout_lines}}"
+#  tags:
+#    - listdir
 
-- name: Loop Dict
-  debug:
-    msg:
-     - "Loop dict KEY: {{ item.key }}, VALUE: {{ item.value }} "
-  with_dict: "{{ansible_cmdline}}"
+#- name: Loop Dict
+#  debug:
+#    msg:
+#     - "Loop dict KEY: {{ item.key }}, VALUE: {{ item.value }} "
+#  with_dict: "{{ansible_cmdline}}"
 
-- name: Loop List
-  debug:
-    msg:
-      - "Loop list {{ item }}"
-  loop: "{{ansible_system_capabilities}}"
+# - name: Loop List
+#   debug:
+#     msg:
+#       - "Loop list {{ item }}"
+#   loop: "{{ansible_system_capabilities}}"
 
-- name: Install libselinux-python
-  yum: name=libselinux-python state=present
+# - name: Install libselinux-python
+#   yum: name=libselinux-python state=present
+
+- name: Status Selinux
+  shell: getenforce
+  register: selin
+
+- name: Disable Selinux
+  shell: setenforce 0
+  when: selin.stdout != "Permissive"
 
 - name: Install iptables
   yum: name=iptables-services state=present
 
+- name: Stop Firewalld
+  service: name=firewalld state=stopped
+
+- name: Stop iptables
+  service: name=iptables state=stopped
+
 - name: Reload ansible_facts
   setup:
 
-- name: Setup iptables rules
-  copy: src=iptables-save dest=/etc/sysconfig/iptables
-  notify: restart iptables
+# - name: Setup iptables rules
+#   copy: src=iptables-save dest=/etc/sysconfig/iptables
+#   notify: restart iptables
+
+- name: Check ulimit
+  shell: ulimit -n 
+  register: ulimitshell
+  tags: 
+    - ulimits
+
+- name: Tuning ulimit
+  shell: echo -e "*	 soft    nofile          1000000\n*        hard    nofile          1000000\n*        soft    nproc          1000000\n*        hard    nproc          1000000" >> /etc/security/limits.conf
+  when: ulimitshell.stdout != "1000000"
+  tags:
+    - ulimits
+
+- name: Check sysctl tuned
+  shell: cat /proc/sys/net/core/somaxconn
+  register: somax
+  tags: 
+    - somax
+
+- name: Tuning sysctl
+  shell: echo -e "net.ipv4.tcp_fin_timeout = 10\nnet.ipv4.tcp_tw_reuse = 1\nnet.ipv4.tcp_tw_recycle = 1\nnet.ipv4.ip_default_ttl = 128\nnet.ipv4.icmp_echo_ignore_broadcasts = 1\nnet.ipv4.tcp_keepalive_time = 300\n#Maximal number of timewait sockets held by system simultaneously\nnet.ipv4.tcp_max_tw_buckets = 10024\n#Maximal number of TCP sockets not attached to any user file handle\nnet.ipv4.tcp_max_orphans = 262144\n#Number of times SYNACKs for a passive TCP connection\nnet.ipv4.tcp_synack_retries = 3\n#Number of times initial SYNs for an active TCP connection\nnet.ipv4.tcp_syn_retries = 2\nnet.core.rmem_max = 50331648\nnet.core.rmem_default = 50331648\n#syn queue\nnet.core.netdev_max_backlog = 262144\n#Concurrent syn\nnet.core.somaxconn = 65535\nnet.ipv4.tcp_rmem = 4096 87380 50331648\nnet.ipv4.tcp_wmem = 4096 65536 50331648\nnet.ipv4.tcp_mem = 8388608 16777216 25165824\n#Maximal number of remembered connection requests, which have not\n#received an acknowledgment from connecting client.\nnet.ipv4.tcp_max_syn_backlog = 10240\nfs.file-max = 4843582\nnet.ipv4.udp_rmem_min=16384\nnet.ipv4.udp_wmem_min=16384\nfs.file-max=100000" >> /etc/sysctl.conf
+  when: somax.stdout != "65535"
+  tags:
+    - somax
+  notify: refresh sysctl
+
+- name: Install Common Packages 
+  yum: name="{{ item }}" state=present update_cache=True
+  loop: ['tcpdump', 'rsyslog', 'nc', 'sysstat', 'net-tools', 'wget']
+  tags:
+    - zabbixagent
+
+- name: Copy Script
+  copy: src=install_zabbix_centos.sh dest=/root/
+  tags:
+    - zabbixagent
+  
+- name: Run script Install Zabbix
+  shell: cd /root; sh install_zabbix_centos.sh
+  tags:
+    - zabbixagent
+
+- name: Templating Zabbix agent config
+  template: src=zabbix_agentd.conf.j2 dest=/etc/zabbix/zabbix_agentd.conf
+  tags:
+    - zabbixagent
+  notify: Restart Zabbix agent
+
+- name: Crontab Zabbix agent
+  cron: 
+    name: Zabbix Agent
+    job: sh /etc/zabbix/bin/iostat-cron.sh /dev/null 2>&1 " >> /var/spool/cron/root
+    state: present
+  tags:
+    - zabbixagent

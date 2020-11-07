@@ -1,11 +1,28 @@
 ---
-- name: Install MySQL, Nginx and PHP-FPM
-  hosts: all
+- hosts: all
   remote_user: quang.tong
   become: True
-
   roles:
     - common
-    - mysql
-    #- nginx 
-    #- php-fpm
+  vars:
+    host_name: "{{ ansible_hostname }}"
+
+- hosts: "10.30.70.200"
+  remote_user: quang.tong
+  become: True
+  roles:
+    - dlapp
+  vars:
+    worker_process: 8
+    predl_domain: pre-dl.dssvti.com
+
+- hosts: "10.30.70.200"
+  remote_user: quang.tong
+  become: True
+  roles:
+    - dldb
+  vars:
+    appip: 10.76.1.6
+    postgresuser: odoouser
+    postgrespassword: 123781
+    postgresdb: odoodb
