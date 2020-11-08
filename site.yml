@@ -1,31 +1,31 @@
 ---
-# - hosts: all
-#   remote_user: quang.tong
-#   become: True
-#   roles:
-#     - common
-#   vars:
-#     host_name: "{{ ansible_hostname }}"
+- hosts: all
+  remote_user: quang.tong
+  become: True
+  roles:
+    - common
+  vars:
+    host_name: "{{ ansible_hostname }}"
 
-# - hosts: "10.30.70.200"
-#   remote_user: quang.tong
-#   become: True
-#   roles:
-#     - dlapp
-#   vars:
-#     worker_process: 8
-#     predl_domain: pre-dl.dssvti.com
+- hosts: "10.30.70.200"
+  remote_user: quang.tong
+  become: True
+  roles:
+    - dlapp
+  vars:
+    worker_process: 8
+    predl_domain: pre-dl.dssvti.com
 
-# - hosts: "10.30.70.200"
-#   remote_user: quang.tong
-#   become: True
-#   roles:
-#     - dldb
-#   vars:
-#     appip: 10.76.1.6
-#     postgresuser: odoouser
-#     postgrespassword: 123781
-#     postgresdb: odoodb
+- hosts: "10.30.70.200"
+  remote_user: quang.tong
+  become: True
+  roles:
+    - dldb
+  vars:
+    appip: 10.76.1.6
+    postgresuser: odoouser
+    postgrespassword: 123781
+    postgresdb: odoodb
 
 - hosts: "10.30.70.200"
   remote_user: quang.tong
@@ -36,6 +36,7 @@
     elasticurl: https://test.dssvti.com:9200
     elastuser: elasticsearch
     elasticuser: elastic
-    elasticpass: "872625"
+    elasticpass: "ddsswe3@!eecfuck"
     tmpsuperuser: quangtd
-    tmpsuperpass: fuck3doi
+    tmpsuperpass: quangtd@282!@2333
+    testflag: true

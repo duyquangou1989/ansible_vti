@@ -50,32 +50,38 @@
 - name: Flush handlers
   meta: flush_handlers
 
-- name: Create tmp superuser
-  shell: ./elasticsearch-users useradd {{ tmpsuperuser }}  -r superuser -p '{{ tmpsuperpass }}'
+- name: Add Test domain
+  shell: echo "{{ ansible_facts['eth0'].ipv4.address }}" test.dssvti.com >> /etc/hosts
+  vars:
+    testflag: true
+  when: "{{ testflag }}"
+  tags: test
+  
+- name: Check exist superuser
+  shell: ./elasticsearch-users list | grep {{ tmpsuperuser }} | wc -l
   args:
     chdir: /usr/share/elasticsearch/bin
+  register: tmpsupexist
 
-- name: Reset Elastic Pass
-  uri:
-    url: "{{ elasticurl }}/_xpack/security/user/{{ elasticuser }}/_password?pretty"
-    method: PUT
-    body:
-      password: "{{ elasticpass }}"
-    user: "{{ tmpsuperuser }}"
-    password: "{{ tmpsuperpass }}"
-    body_format: json
-    force_basic_auth: yes
-    validate_certs: no
-    headers:
-      Content-Type: application/json
-  tags:
-    - test
-  ignore_errors: true
-# - name: Debug
-#   debug: var=ansible_facts['eth0'].ipv4.address
+- name: Remove exist tmp user
+  shell: ./elasticsearch-users userdel {{ tmpsuperuser }}
+  args:
+    chdir: /usr/share/elasticsearch/bin
+  when:  tmpsupexist.rc >= 1 
 
-# curl -s --user quangtd:123456 -XPUT "https://test.dssvti.com:9200/_xpack/security/user/elastic/_password?pretty" -H 'Content-Type: application/json' -d'
-# {
-#   "password" : "123456"
-# }
-# '
+- name: Create tmp superuser
+  shell: ./elasticsearch-users useradd {{ tmpsuperuser }}  -r superuser -p "{{ tmpsuperpass }}"
+  args:
+    chdir: /usr/share/elasticsearch/bin
+  notify: Restart Elasticsearch
+  tags: test
+
+- name: Copy Elastic Shell
+  template:
+    src: elastic_changepass.sh.j2 
+    dest: /root/elastic_changepass.sh
+
+- name: Run Set Elastic Pass
+  shell: bash elastic_changepass.sh
+  args:
+    chdir: /root/

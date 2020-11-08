@@ -1,0 +1,6 @@
+#!/bin/bash
+ curl -s --user {{ tmpsuperuser }}:{{ tmpsuperpass }} -XPUT "{{ elasticurl }}/_xpack/security/user/elastic/_password?pretty" -H 'Content-Type: application/json' -d'
+ {
+   "password" : "{{ elasticpass }}"
+ }
+ '
