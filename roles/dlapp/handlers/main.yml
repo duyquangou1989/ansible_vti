@@ -1,3 +1,21 @@
 ---
 - name: Restart nginx
   service: name=nginx state=restarted
+
+- name: Cleanup Addons TMP
+  shell: rm -rf dl-addons13*
+  args:
+    chdir: /tmp
+
+- name: Cleanup Enterprise TMP
+  shell: rm -rf data; rm -rf odoo-13* 
+  args:
+    chdir: /tmp
+
+- name: Cleanup Filestore TMP
+  shell: rm -rf filestore*
+  args:
+    chdir: /tmp
+
+- name: Restart Odoo
+  service: name=odoo state=restarted

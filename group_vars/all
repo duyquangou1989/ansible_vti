@@ -4,3 +4,16 @@ mysql_port: 3306
 auto_up_disable: false
 
 server_hostname: duyquangou1989.com
+
+postgresuser: odoouser
+postgrespassword: 123781
+postgresdb: odoodb
+
+appip: 10.30.70.210
+dldbip: 10.30.70.211
+elasip: 10.30.70.200
+dlapplogdir: "/data/log"
+
+dlprofilestore: "dl_pro"
+ftpappusr: "appsource"
+ftpapppass: "appsource@@@"

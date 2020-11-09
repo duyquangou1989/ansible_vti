@@ -1,49 +1,41 @@
 ---
-- name: show ansible facts
-  debug: var=ansible_facts
-  tags:
-    - test
-
-# - name: List dir
-#   shell: ls /tmp
-#   register: listtest
+# - name: show ansible facts
+#   debug: var=ansible_facts
 #   tags:
-#     - listdir
+#     - test
+- name: Create Data dir
+  file:
+    path: /data
+    state: directory
 
-# - name: show list
-#   debug: var=listtest
-#   tags:
-#     - listdir
+- name: Create Swap
+  command: dd if=/dev/zero of=/data/swapfile bs=1024 count=4096k creates=/data/swapfile
 
-# - name: list file
-#   debug:
-#     msg:
-#       - "{{ item }}"
-#   loop: "{{listtest.stdout_lines}}"
-#   tags:
-#     - listdir
-  
-#- name: Delete File
-#  file: path=/tmp/{{item}} state=absent
-#  when: ("{{item}}" == "yum_save_tx.2020-11-05.05-34.fzXCm6.yumtx")
-#  loop: "{{listtest.stdout_lines}}"
-#  tags:
-#    - listdir
+- name: Change Swap Per
+  file: path="/data/swapfile"
+          owner=root
+          group=root
+          mode=0600
 
-#- name: Loop Dict
-#  debug:
-#    msg:
-#     - "Loop dict KEY: {{ item.key }}, VALUE: {{ item.value }} "
-#  with_dict: "{{ansible_cmdline}}"
+- name: Check Swap file type
+  command: file /data/swapfile
+  register: swapfiletype
 
-# - name: Loop List
-#   debug:
-#     msg:
-#       - "Loop list {{ item }}"
-#   loop: "{{ansible_system_capabilities}}"
+- name: Make Swap file
+  command: "sudo mkswap /data/swapfile"
+  when: swapfiletype.stdout.find('swap file') == -1
 
-# - name: Install libselinux-python
-#   yum: name=libselinux-python state=present
+- name: Write Swap Entry in fstab
+  mount:  name=none
+          src=/data/swapfile
+          fstype=swap
+          opts=sw
+          passno=0
+          state=present
+
+- name: Mount Swap
+  command: "swapon /data/swapfile"
+  when: ansible_swaptotal_mb < 1
 
 - name: Status Selinux
   shell: getenforce
@@ -96,7 +88,7 @@
 
 - name: Install Common Packages 
   yum: name="{{ item }}" state=present update_cache=True
-  loop: ['tcpdump', 'rsyslog', 'nc', 'sysstat', 'net-tools', 'wget']
+  loop: ['tcpdump', 'rsyslog', 'nc', 'sysstat', 'net-tools', 'wget','ncftp']
   tags:
     - zabbixagent
 
@@ -123,3 +115,4 @@
     state: present
   tags:
     - zabbixagent
+    

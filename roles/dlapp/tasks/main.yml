@@ -25,3 +25,113 @@
 - name: Copy predl config
   template: src=ssl.dssvti.com.conf.j2 dest=/etc/nginx/site-enable/ssl.dssvti.com.conf
   notify: Restart nginx
+
+#Odoo Setup
+- name: Install Odoo Require Pkg
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - python36
+    - telnet
+    - libxml2
+    - libxml2-devel
+    - python36-lxml
+    - python36-devel
+    - libxslt-devel
+    - openldap-devel
+    - python3-pip
+    - ncftp
+    - gcc
+
+- name: Create Odoo User
+  user: 
+    name: odoo
+    comment: Odoo Service User
+    state: present
+   
+- name: Prepare Data Log Dir App
+  file:
+    path: /data/log
+    state: directory
+    owner: odoo
+    group: odoo
+
+- name: Get date
+  shell: date +%Y%m%d
+  register: datedown
+
+- name: Download Source
+  shell: "ncftpget -u {{ ftpappusr }} -p {{ ftpapppass }} ftp://{{ ftpapprealip }}/{{ datedown.stdout }}/*"
+  args:
+    chdir: /tmp
+
+- name: Collect Addons Source
+  shell: ls -t |grep dl-addons | head -n1  
+  args:
+    chdir: /tmp
+  register: dladdons
+
+- name: Collect Enterprise Source
+  shell: ls -t |grep odoo-13 | head -n1 
+  args:
+    chdir: /tmp
+  register: dlensource
+
+- name: Collect Filestore data
+  shell: ls -t | grep filestore| head -n1
+  args:
+    chdir: /tmp
+  register: dlfilestore
+  
+#After Get Source done & exist
+- name: Move tmp Addons Source
+  shell: tar -zxf {{ dladdons.stdout }} && rsync -avz -r dl-addons13 /data
+  args:
+    chdir: /tmp
+  notify: Cleanup Addons TMP
+
+- name: Move tmp enterprise Source
+  shell: tar -zxf {{ dlensource.stdout }} && rsync -avz -r data /
+  args:
+    chdir: /tmp
+  notify: Cleanup Enterprise TMP
+
+- name: Get source dir
+  shell: ls -t /data/odoo13/ | head -n 1
+  register: odoosource
+  tags: getodoo
+
+- name: Install Python requirements
+  shell: pip3.6 install -r requirements.txt && pip3.6 install elasticsearch
+  args:
+    chdir: "/data/odoo13/{{ odoosource.stdout }}"
+
+- name: Config odoo13.conf
+  template:
+    src: odoo13.conf.j2
+    dest: /data/odoo13.conf
+
+- name: Create Filestore Dir
+  file: 
+    name: "/home/odoo/.local/share/data/filestore/{{ postgresdb }}"
+    state: directory
+    owner: "odoo"
+    group: "odoo"
+
+- name: Filestore Extract
+  shell:  "tar -zxf {{ dlfilestore.stdout }}; cd filestore && rsync -avz -r {{ dlprofilestore }}/* /home/odoo/.local/share/data/filestore/{{ postgresdb }}/"
+  args:
+    chdir: /tmp
+  notify: Cleanup Filestore TMP
+
+- name: Copy Service Start Script
+  template:
+    src: odoo.service.j2
+    dest: /usr/lib/systemd/system/odoo.service
+    mode: 0755
+  vars:
+    odoosourcedir: "{{ odoosource.stdout }}"
+  tags: getodoo
+  notify: Restart Odoo
+  

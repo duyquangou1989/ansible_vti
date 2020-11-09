@@ -49,3 +49,29 @@
 
 - name: Grant Permission
   shell: sudo -u postgres psql -c "ALTER DATABASE {{ postgresdb }} OWNER TO {{ postgresuser }}"
+
+- name: Get lastest dump data info
+  shell:  "ncftpget -u {{ ftpappusr }} -p {{ ftpapppass }} ftp://{{ ftpdbrealip }}/latest.txt"
+  args:
+    chdir: /root
+  tags: testdb
+
+- name: Get info latest dump
+  shell: cat latest.txt
+  args:
+    chdir: /root
+  register: dumpinfo
+  tags: testdb
+
+- name: Download Dump from FTP
+  shell: ncftpget -u {{ ftpappusr }} -p {{ ftpapppass }} ftp://{{ ftpdbrealip }}/{{ dumpinfo.stdout }}
+  args:
+    chdir: /root
+  tags: testdb
+
+- name: Restore Postgres DB
+  shell: "sudo -u postgres psql -U {{ postgresuser }} -h 127.0.0.1 {{ postgresdb }} < {{ dumpinfo.stdout }}"
+  args:
+    chdir: /root
+  tags: testdb
+  notify: Cleanup DB TMP

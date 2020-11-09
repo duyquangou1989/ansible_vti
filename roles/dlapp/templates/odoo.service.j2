@@ -1,0 +1,20 @@
+[Unit]
+Description=Advanced OpenSource ERP and CRM server
+#Requires=postgresql.service
+#After=postgresql.service
+[Install]
+Alias=odoo.service
+[Service]
+Type=simple
+PermissionsStartOnly=true
+# EnvironmentFile=-/etc/conf.d/odoo-server
+User=odoo
+Group=odoo
+LimitNOFILE=10000
+SyslogIdentifier=odoo
+#PIDFile=/run/odoo/odoo.pid
+ExecStartPre=/usr/bin/install -d -m1024 -o odoo -g odoo /run/odoo
+ExecStart=/usr/bin/python3.6 /data/odoo13/{{odoosourcedir}}/odoo-bin -c /data/odoo13.conf
+#ExecStop=/bin/kill $MAINPID
+[Install]
+WantedBy=multi-user.target
