@@ -1,44 +1,40 @@
-# ---
-# - hosts: all
-#   remote_user: quang.tong
-#   become: True
-#   roles:
-#     - common
-#   vars:
-#     host_name: "{{ ansible_hostname }}"
+---
+- hosts: all
+  remote_user: ansibleuser
+  become: True
+  roles:
+    - common
+  vars:
+    host_name: "{{ ansible_hostname }}"
 
 - hosts: "DLDB"
-  remote_user: quang.tong
+  remote_user: ansibleuser
   become: True
   roles:
     - dldb
   vars:
     ftpdbrealip: "10.148.0.26"
-  #   appip: 10.30.70.211
-  #   postgresuser: odoouser
-  #   postgrespassword: 123781
-  #   postgresdb: odoodb
 
-# - hosts: "DLAPP"
-#   remote_user: quang.tong
-#   become: True
-#   roles:
-#     - dlapp
-#   vars:
-#     worker_process: 8
-#     predl_domain: pre-dl.dssvti.com
-#     ftpapprealip: "10.148.0.25"
+- hosts: "DLAPP"
+  remote_user: ansibleuser
+  become: True
+  roles:
+    - dlapp
+  vars:
+    worker_process: 8
+    predl_domain: pre-dl.dssvti.com
+    ftpapprealip: "10.148.0.25"
 
-# - hosts: "DLELAS"
-#   remote_user: quang.tong
-#   become: True
-#   roles:
-#     - dlelastic
-#   vars:
-#     elasticurl: https://test.dssvti.com:9200
-#     elastuser: elasticsearch
-#     elasticuser: elastic
-#     elasticpass: "ddsswe3@!eecfuck"
-#     tmpsuperuser: quangtd
-#     tmpsuperpass: quangtd@282!@2333
-#     testflag: true
+- hosts: "DLELAS"
+  remote_user: ansibleuser
+  become: True
+  roles:
+    - dlelastic
+  vars:
+    elasticurl: https://test.dssvti.com:9200
+    elastuser: elasticsearch
+    elasticuser: elastic
+    elasticpass: "ddsswe3@!eecfuck"
+    tmpsuperuser: quangtd
+    tmpsuperpass: quangtd@282!@2333
+    testflag: true

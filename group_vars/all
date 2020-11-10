@@ -11,7 +11,7 @@ postgresdb: odoodb
 
 appip: 10.30.70.210
 dldbip: 10.30.70.211
-elasip: 10.30.70.200
+elasip: 10.30.70.212
 dlapplogdir: "/data/log"
 
 dlprofilestore: "dl_pro"

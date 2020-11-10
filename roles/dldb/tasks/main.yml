@@ -50,7 +50,7 @@
 - name: Grant Permission
   shell: sudo -u postgres psql -c "ALTER DATABASE {{ postgresdb }} OWNER TO {{ postgresuser }}"
 
-- name: Get lastest dump data info
+- name: Get latest dump data info
   shell:  "ncftpget -u {{ ftpappusr }} -p {{ ftpapppass }} ftp://{{ ftpdbrealip }}/latest.txt"
   args:
     chdir: /root
@@ -75,3 +75,13 @@
     chdir: /root
   tags: testdb
   notify: Cleanup DB TMP
+
+- name: Copy Script Setting Pre
+  template: 
+    src: config_db.sh.j2
+    dest: /root/config_db.sh
+  
+- name: Run script Setting Pre
+  shell: bash config_db.sh
+  args:
+    chdir: /root

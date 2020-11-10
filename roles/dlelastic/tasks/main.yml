@@ -85,3 +85,13 @@
   shell: bash elastic_changepass.sh
   args:
     chdir: /root/
+
+- name: Copy Script Add Test data
+  template: 
+    src: elastic_test_data.sh.j2
+    dest: /root/elastic_test_data.sh
+
+- name: Run Script Add Test data
+  shell: bash elastic_test_data.sh
+  args:
+    chdir: /root

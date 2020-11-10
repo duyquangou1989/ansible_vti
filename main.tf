@@ -3,43 +3,44 @@ provider "google" {
     region = "asia-southeast1"
 }
 
-resource "google_compute_address" "intaddr" {
-    name = "intdemo"
+resource "google_compute_address" "intelas" {
+    name = "intelas"
     address_type = "INTERNAL"
     subnetwork = "postgres"
-    address = "10.30.70.200"
+    address = "10.30.70.212"
 }
 
-resource "google_compute_address" "extaddr" {
-    name = "extdemo"
+resource "google_compute_address" "extelas" {
+    name = "extelas"
     address_type = "EXTERNAL"
     address = ""
 }
 
-resource "google_compute_instance" "instancedemo" {
-    name = "insdemo"
-    machine_type = "custom-2-8192"
+resource "google_compute_instance" "dlelas" {
+    name = "d-elastic-demo"
+    machine_type = "custom-4-8192"
     zone = "asia-southeast1-b"
     allow_stopping_for_update = true
     service_account {
         scopes = ["cloud-platform"]
     }
 
-    metadata = {
-        ssh-keys = "quang.tong:${file("~/.ssh/id_ed25519.pub")}"
-    }
+     metadata = {
+         ssh-keys = "ansibleuser:${file("~/.ssh/id_rsa.pub")}"
+     }
     boot_disk {
         initialize_params {
             image = "centos-7-v20200403"
-            size = "50"
+            type = "pd-ssd"
+            size = "100"
         }
     }
     network_interface {
-        network_ip = google_compute_address.intaddr.address
+        network_ip = google_compute_address.intelas.address
         network = "dl-network-new"
         subnetwork = "postgres"
         access_config {
-            nat_ip = google_compute_address.extaddr.address
+            nat_ip = google_compute_address.extelas.address
         }
     }
 }
@@ -67,9 +68,9 @@ resource "google_compute_instance" "dlapp" {
         scopes = ["cloud-platform"]
     }
 
-    metadata = {
-        ssh-keys = "quang.tong:${file("~/.ssh/id_ed25519.pub")}"
-    }
+     metadata = {
+        ssh-keys = "ansibleuser:${file("~/.ssh/id_rsa.pub")}"
+     }
     boot_disk {
         initialize_params {
             image = "centos-7-v20200403"
@@ -102,21 +103,22 @@ resource "google_compute_address" "extdldb" {
 
 resource "google_compute_instance" "dldb" {
     name = "dl-db-demo"
-    machine_type = "custom-16-32768"
+    machine_type = "custom-8-32768"
     zone = "asia-southeast1-b"
     allow_stopping_for_update = true
     service_account {
         scopes = ["cloud-platform"]
     }
 
-    metadata = {
-        ssh-keys = "quang.tong:${file("~/.ssh/id_ed25519.pub")}"
-    }
+     metadata = {
+    #     ssh-keys = "quang.tong:${file("~/.ssh/id_ed25519.pub")}"
+        ssh-keys = "ansibleuser:${file("~/.ssh/id_rsa.pub")}"
+     }
     boot_disk {
         initialize_params {
             image = "centos-7-v20200403"
             type = "pd-ssd"
-            size = "500"
+            size = "300"
         }
     }
     network_interface {

@@ -1,0 +1,18 @@
+#!/bin/bash
+PSQL="sudo -u postgres psql -U postgres -h 127.0.0.1 {{ postgresdb }} -c "
+
+declare -A mbeconfig
+mbeconfig["dss.mbegateway.api"]="https://pre-mbe-api.dssvti.com/api/v1"
+mbeconfig["dss.dlmbe.api"]="https://pre-mbe.dssvti.com/api/v1"
+mbeconfig["dss.dlmbe.elasticpassword"]="Fn8rzGMzk14GIqdk3w03"
+mbeconfig["dss.dlmbe.elasticserver"]="predl-elasticsearch.dssvti.com"
+mbeconfig["dss.dlmbe.elasticuser"]="elastic"
+mbeconfig["dss.dlmbe.elasticport"]="9200"
+mbeconfig["dss.mxoo.abe.api"]="https://pre-mxoo-abe.dssvti.com/api/v1"
+
+for key in  ${!mbeconfig[@]}
+do
+    #echo "$i => ${mbeconfig[$i]}"
+    echo "Updating Setting Parameters $key --> ${mbeconfig[$key]} "
+    $PSQL "UPDATE ir_config_parameter SET value='${mbeconfig[$key]}' WHERE key='${key}'"
+done

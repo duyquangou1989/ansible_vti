@@ -1,0 +1,2 @@
+#!/bin/bash
+curl --location --request POST '{{ elasticurl }}/hlc/_doc/2405' -u {{ elasticuser }}:{{ elasticpass }} --header 'Content-Type: application/json' --data '{"id":2405, "full_name":"Tri Trinh", "mobile":"+84903011847", "parent":false, "type":"contact", "pricelist":2}'
