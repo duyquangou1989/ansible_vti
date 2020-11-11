@@ -121,3 +121,8 @@
   args:
     chdir: /etc/ssh/
   notify: Restart SSHD
+
+- name: Add authorized key root
+  authorized_key:
+    user: root
+    key: "{{ lookup('file','./jenkins.pub') }}"

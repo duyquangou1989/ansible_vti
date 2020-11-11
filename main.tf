@@ -17,7 +17,7 @@ resource "google_compute_address" "extelas" {
 }
 
 resource "google_compute_instance" "dlelas" {
-    name = "dl-elastic-demo"
+    name = "predl-elastic-demo"
     machine_type = "custom-4-8192"
     zone = "asia-southeast1-b"
     allow_stopping_for_update = true
@@ -26,8 +26,7 @@ resource "google_compute_instance" "dlelas" {
     }
 
      metadata = {
-         ssh-keys = "ansibleuser:${file("~/.ssh/id_rsa.pub")}"
-         ssh-keys = "root:${file("./jenkins.pub")}"
+         ssh-keys = "ansible:${file("./jenkins.pub")}"
      }
     boot_disk {
         initialize_params {
@@ -61,7 +60,7 @@ resource "google_compute_address" "extdlapp" {
 }
 
 resource "google_compute_instance" "dlapp" {
-    name = "dl-app-demo"
+    name = "predl-app-demo"
     machine_type = "custom-8-16384"
     zone = "asia-southeast1-b"
     allow_stopping_for_update = true
@@ -70,8 +69,7 @@ resource "google_compute_instance" "dlapp" {
     }
 
      metadata = {
-        ssh-keys = "ansibleuser:${file("~/.ssh/id_rsa.pub")}"
-        ssh-keys = "root:${file("./jenkins.pub")}"
+        ssh-keys = "ansible:${file("./jenkins.pub")}"
      }
     boot_disk {
         initialize_params {
@@ -104,7 +102,7 @@ resource "google_compute_address" "extdldb" {
 }
 
 resource "google_compute_instance" "dldb" {
-    name = "dl-db-demo"
+    name = "predl-db-demo"
     machine_type = "custom-8-32768"
     zone = "asia-southeast1-b"
     allow_stopping_for_update = true
@@ -114,8 +112,7 @@ resource "google_compute_instance" "dldb" {
 
      metadata = {
     #     ssh-keys = "quang.tong:${file("~/.ssh/id_ed25519.pub")}"
-        ssh-keys = "ansibleuser:${file("~/.ssh/id_rsa.pub")}"
-        ssh-keys = "root:${file("./jenkins.pub")}"
+        ssh-keys = "ansible:${file("./jenkins.pub")}"
      }
     boot_disk {
         initialize_params {

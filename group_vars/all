@@ -17,3 +17,7 @@ dlapplogdir: "/data/log"
 dlprofilestore: "dl_pro"
 ftpappusr: "appsource"
 ftpapppass: "appsource@@@"
+host_name: "{{ ansible_hostname }}"
+
+ftpdbrealip: "10.148.0.26"
+ftpapprealip: "10.148.0.25"

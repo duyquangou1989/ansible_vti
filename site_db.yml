@@ -1,0 +1,10 @@
+---
+- hosts: "DLDB"
+  remote_user: ansible
+  become: True
+  roles:
+    - common
+    - dldb
+  vars:
+    host_name: "{{ ansible_hostname }}"
+    
