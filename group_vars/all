@@ -9,9 +9,9 @@ postgresuser: odoouser
 postgrespassword: 123781
 postgresdb: odoodb
 
-appip: 10.30.70.210
-dldbip: 10.30.70.211
-elasip: 10.30.70.212
+appip: 10.30.50.211
+dldbip: 10.30.50.212
+elasip: 10.30.50.210
 dlapplogdir: "/data/log"
 
 dlprofilestore: "dl_pro"

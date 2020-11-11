@@ -1,0 +1,10 @@
+#!/bin/bash
+HOST='{{ ftpapprealip }}'
+USER='jenkins'
+PASS='jenkins@@@$$$'
+
+cd /root
+
+[[  -f jenkins_master.tgz ]] && rm -f jenkins_master.tgz
+
+tar -zcf jenkins_master.tgz jenkins_master && ncftpput -Rv -u $USER -p $PASS $HOST / /root/jenkins_master.tgz

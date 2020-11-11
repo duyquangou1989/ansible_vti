@@ -116,3 +116,8 @@
   tags:
     - zabbixagent
     
+- name: Set SSH Permit Root Login
+  shell: sed -i 's/PermitRootLogin no/PermitRootLogin yes/g' sshd_config
+  args:
+    chdir: /etc/ssh/
+  notify: Restart SSHD

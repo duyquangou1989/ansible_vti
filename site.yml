@@ -1,6 +1,6 @@
 ---
 - hosts: all
-  remote_user: ansibleuser
+  remote_user: infra
   become: True
   roles:
     - common
@@ -8,7 +8,7 @@
     host_name: "{{ ansible_hostname }}"
 
 - hosts: "DLDB"
-  remote_user: ansibleuser
+  remote_user: infra
   become: True
   roles:
     - dldb
@@ -16,7 +16,7 @@
     ftpdbrealip: "10.148.0.26"
 
 - hosts: "DLAPP"
-  remote_user: ansibleuser
+  remote_user: infra
   become: True
   roles:
     - dlapp
@@ -26,7 +26,7 @@
     ftpapprealip: "10.148.0.25"
 
 - hosts: "DLELAS"
-  remote_user: ansibleuser
+  remote_user: infra
   become: True
   roles:
     - dlelastic

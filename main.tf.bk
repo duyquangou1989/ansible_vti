@@ -1,13 +1,13 @@
 provider "google" {
-    project = "vti-dl"
+    project = "vti-sandbox"
     region = "asia-southeast1"
 }
 
 resource "google_compute_address" "intelas" {
     name = "intelas"
     address_type = "INTERNAL"
-    subnetwork = "pre-dl"
-    address = "10.30.50.210"
+    subnetwork = "postgres"
+    address = "10.30.70.212"
 }
 
 resource "google_compute_address" "extelas" {
@@ -17,7 +17,7 @@ resource "google_compute_address" "extelas" {
 }
 
 resource "google_compute_instance" "dlelas" {
-    name = "dl-elastic-demo"
+    name = "d-elastic-demo"
     machine_type = "custom-4-8192"
     zone = "asia-southeast1-b"
     allow_stopping_for_update = true
@@ -27,7 +27,6 @@ resource "google_compute_instance" "dlelas" {
 
      metadata = {
          ssh-keys = "ansibleuser:${file("~/.ssh/id_rsa.pub")}"
-         ssh-keys = "root:${file("./jenkins.pub")}"
      }
     boot_disk {
         initialize_params {
@@ -38,8 +37,8 @@ resource "google_compute_instance" "dlelas" {
     }
     network_interface {
         network_ip = google_compute_address.intelas.address
-        network = "pre-dl"
-        subnetwork = "pre-dl"
+        network = "dl-network-new"
+        subnetwork = "postgres"
         access_config {
             nat_ip = google_compute_address.extelas.address
         }
@@ -50,8 +49,8 @@ resource "google_compute_instance" "dlelas" {
 resource "google_compute_address" "intdlapp" {
     name = "intdlapp"
     address_type = "INTERNAL"
-    subnetwork = "pre-dl"
-    address = "10.30.50.211"
+    subnetwork = "postgres"
+    address = "10.30.70.210"
 }
 
 resource "google_compute_address" "extdlapp" {
@@ -71,7 +70,6 @@ resource "google_compute_instance" "dlapp" {
 
      metadata = {
         ssh-keys = "ansibleuser:${file("~/.ssh/id_rsa.pub")}"
-        ssh-keys = "root:${file("./jenkins.pub")}"
      }
     boot_disk {
         initialize_params {
@@ -81,8 +79,8 @@ resource "google_compute_instance" "dlapp" {
     }
     network_interface {
         network_ip = google_compute_address.intdlapp.address
-        network = "pre-dl"
-        subnetwork = "pre-dl"
+        network = "dl-network-new"
+        subnetwork = "postgres"
         access_config {
             nat_ip = google_compute_address.extdlapp.address
         }
@@ -93,8 +91,8 @@ resource "google_compute_instance" "dlapp" {
 resource "google_compute_address" "intdldb" {
     name = "intdldb"
     address_type = "INTERNAL"
-    subnetwork = "pre-dl"
-    address = "10.30.50.212"
+    subnetwork = "postgres"
+    address = "10.30.70.211"
 }
 
 resource "google_compute_address" "extdldb" {
@@ -115,7 +113,6 @@ resource "google_compute_instance" "dldb" {
      metadata = {
     #     ssh-keys = "quang.tong:${file("~/.ssh/id_ed25519.pub")}"
         ssh-keys = "ansibleuser:${file("~/.ssh/id_rsa.pub")}"
-        ssh-keys = "root:${file("./jenkins.pub")}"
      }
     boot_disk {
         initialize_params {
@@ -126,8 +123,8 @@ resource "google_compute_instance" "dldb" {
     }
     network_interface {
         network_ip = google_compute_address.intdldb.address
-        network = "pre-dl"
-        subnetwork = "pre-dl"
+        network = "dl-network-new"
+        subnetwork = "postgres"
         access_config {
             nat_ip = google_compute_address.extdldb.address
         }

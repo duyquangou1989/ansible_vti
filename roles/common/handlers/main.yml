@@ -10,3 +10,6 @@
 
 - name: Restart Zabbix agent
   service: name=zabbix-agent state=restarted
+
+- name: Restart SSHD
+  service: name=sshd state=restarted

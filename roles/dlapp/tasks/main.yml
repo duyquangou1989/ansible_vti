@@ -135,3 +135,13 @@
   tags: getodoo
   notify: Restart Odoo
   
+- name: Copy deploy Jenkins script
+  copy: 
+    src: auto_dlapp.sh
+    dest: /root/
+
+- name: Copy Upload Jenkins To DL Prod
+  template:
+    src: upload_to_pro.sh.j2
+    dest: /root/upload_to_pro.sh
+    mode: 0755
