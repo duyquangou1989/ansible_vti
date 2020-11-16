@@ -7,4 +7,5 @@
     - dldb
   vars:
     host_name: "{{ ansible_hostname }}"
+    archive_dir: "/var/lib/pgsql/10/archive"
     

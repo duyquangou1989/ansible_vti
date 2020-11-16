@@ -24,6 +24,13 @@
   template: src={{ item }}.j2 dest=/var/lib/pgsql/10/data/{{ item }}
   loop: ['pg_hba.conf','postgresql.conf']
 
+- name: Create postgres archive dir
+  file: 
+    path: "{{ archive_dir }}"
+    state: directory
+    owner: postgres
+    group: postgres
+
 - name: Force restat postgres
   service: name="postgresql-10" state=restarted
 

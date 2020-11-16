@@ -10,11 +10,11 @@ resource "google_compute_address" "intelas" {
     address = "10.30.50.210"
 }
 
-resource "google_compute_address" "extelas" {
-    name = "extelas"
-    address_type = "EXTERNAL"
-    address = ""
-}
+# resource "google_compute_address" "extelas" {
+#     name = "extelas"
+#     address_type = "EXTERNAL"
+#     address = ""
+# }
 
 resource "google_compute_instance" "dlelas" {
     name = "predl-elastic-demo"
@@ -40,7 +40,8 @@ resource "google_compute_instance" "dlelas" {
         network = "pre-dl"
         subnetwork = "pre-dl"
         access_config {
-            nat_ip = google_compute_address.extelas.address
+            #nat_ip = google_compute_address.extelas.address
+            nat_ip = "35.198.254.247"
         }
     }
 }
@@ -53,11 +54,11 @@ resource "google_compute_address" "intdlapp" {
     address = "10.30.50.211"
 }
 
-resource "google_compute_address" "extdlapp" {
-    name = "extdlapp"
-    address_type = "EXTERNAL"
-    address = ""
-}
+# resource "google_compute_address" "extdlapp" {
+#     name = "extdlapp"
+#     address_type = "EXTERNAL"
+#     address = ""
+# }
 
 resource "google_compute_instance" "dlapp" {
     name = "predl-app-demo"
@@ -82,7 +83,8 @@ resource "google_compute_instance" "dlapp" {
         network = "pre-dl"
         subnetwork = "pre-dl"
         access_config {
-            nat_ip = google_compute_address.extdlapp.address
+            #nat_ip = google_compute_address.extdlapp.address
+            nat_ip = "34.87.58.181"
         }
     }
 }
