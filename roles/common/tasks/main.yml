@@ -45,6 +45,13 @@
   shell: setenforce 0
   when: selin.stdout != "Permissive"
 
+- name: Install Yum-utils
+  yum: name=yum-utils state=present disablerepo=google-cloud-sdk,google-compute-engine
+#  notify: Yum disable Gcloud repo
+  
+- name: Disable Gcloud repo
+  shell: yum-config-manager --disable google-cloud-sdk,google-compute-engine
+
 - name: Install iptables
   yum: name=iptables-services state=present
 
@@ -87,7 +94,7 @@
   notify: refresh sysctl
 
 - name: Install Common Packages 
-  yum: name="{{ item }}" state=present update_cache=True
+  yum: name="{{ item }}" state=present update_cache=True disablerepo=google-cloud-sdk,google-compute-engine
   loop: ['tcpdump', 'rsyslog', 'nc', 'sysstat', 'net-tools', 'wget','ncftp']
   tags:
     - zabbixagent

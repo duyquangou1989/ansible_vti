@@ -103,7 +103,7 @@
   tags: getodoo
 
 - name: Install Python requirements
-  shell: pip3.6 install -r requirements.txt && pip3.6 install elasticsearch
+  shell: pip3.6 install -r requirements.txt && pip3.6 install elasticsearch && pip3.6 install pysftp
   args:
     chdir: "/data/odoo13/{{ odoosource.stdout }}"
 

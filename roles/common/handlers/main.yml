@@ -13,3 +13,6 @@
 
 - name: Restart SSHD
   service: name=sshd state=restarted
+
+- name: Yum disable Gcloud repo
+  shell: yum-config-manager --disable google-cloud-sdk,google-compute-engine
