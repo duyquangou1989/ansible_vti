@@ -32,7 +32,7 @@
     group: postgres
 
 - name: Force restat postgres
-  service: name="postgresql-10" state=restarted
+  service: name="postgresql-10" state=restarted enabled=yes
 
 - name: Check postgres user exist
   shell: sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='{{ postgresuser }}'"

@@ -1,6 +1,6 @@
 ---
 - name: Restart Elasticsearch
-  service: name=elasticsearch state=restarted
+  service: name=elasticsearch state=restarted enabled=yes
 
 - name: Clean Yum
   shell: yum clean all

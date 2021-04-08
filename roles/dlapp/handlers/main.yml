@@ -1,6 +1,6 @@
 ---
 - name: Restart nginx
-  service: name=nginx state=restarted
+  service: name=nginx state=restarted enabled=yes
 
 - name: Cleanup Addons TMP
   shell: rm -rf dl-addons13*
@@ -18,4 +18,4 @@
     chdir: /tmp
 
 - name: Restart Odoo
-  service: name=odoo state=restarted
+  service: name=odoo state=restarted enabled=yes

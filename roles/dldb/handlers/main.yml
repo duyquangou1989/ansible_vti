@@ -1,6 +1,6 @@
 ---
 - name: Restart Postgresql
-  service: name="postgresql-10" state=restarted
+  service: name="postgresql-10" state=restarted enabled=yes
 
 - name: Cleanup DB TMP
   shell: rm -f *dl_pro.bk
