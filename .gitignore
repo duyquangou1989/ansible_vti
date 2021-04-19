@@ -2,3 +2,4 @@
 terraform.*
 ssl-dssvti.com-key
 ssl-dssvti.com.pem
+roles/dldb/templates/*.sql

@@ -83,12 +83,35 @@
   tags: testdb
   notify: Cleanup DB TMP
 
-- name: Copy Script Setting Pre
-  template: 
-    src: config_db.sh.j2
-    dest: /root/config_db.sh
+# - name: Copy Script Setting Pre
+#   template: 
+#     src: config_db.sh.j2
+#     dest: /root/config_db.sh
   
-- name: Run script Setting Pre
-  shell: bash config_db.sh
+# - name: Run script Setting Pre
+#   shell: bash config_db.sh
+#   args:
+#     chdir: /root
+
+- name: Copy Exist Setting Tables
+  template: 
+    src: "{{ item }}"
+    dest: /root/{{ item }}
+  with_items:
+    - dss_mxoo_shop_relation.sql
+    - dss_mxoo_vendor.sql
+    - hlc_online_ordering_product_relation.sql
+    - hlc_online_ordering_store_operations.sql
+    - ir_config_parameter.sql
+  
+
+- name: Restore Setting Tables
+  shell: "sudo -u postgres psql -U {{ postgresuser }} -h 127.0.0.1 {{ postgresdb }} < {{ item }}"
   args:
     chdir: /root
+  with_items:
+    - dss_mxoo_shop_relation.sql
+    - dss_mxoo_vendor.sql
+    - hlc_online_ordering_product_relation.sql
+    - hlc_online_ordering_store_operations.sql
+    - ir_config_parameter.sql

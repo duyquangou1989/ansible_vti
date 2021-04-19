@@ -3,6 +3,8 @@ local   all             all                                     peer
 # IPv4 local connections:
 host    all             postgres        127.0.0.1/32       	trust
 host	all		all		{{ appip }}/32		trust
+host	all		all		10.76.1.4/24		trust
+host	all		all		10.76.2.4/24		trust
 host	all		all		127.0.0.1/32		trust		
 # IPv6 local connections:
 host    all             all             ::1/128                 ident
